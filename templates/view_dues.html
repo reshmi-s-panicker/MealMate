@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Student Dues</h1>
+    
+    <!-- Month Selection -->
+    <div class="month-selector">
+        <select id="monthSelect" onchange="updateMonth(this.value)">
+            <option value="current" {% if selected_month == 'current' %}selected{% endif %}>Current Week</option>
+            <option value="january" {% if selected_month == 'january' %}selected{% endif %}>January</option>
+            <option value="february" {% if selected_month == 'february' %}selected{% endif %}>February</option>
+            <option value="march" {% if selected_month == 'march' %}selected{% endif %}>March</option>
+            <option value="april" {% if selected_month == 'april' %}selected{% endif %}>April</option>
+            <option value="may" {% if selected_month == 'may' %}selected{% endif %}>May</option>
+            <option value="june" {% if selected_month == 'june' %}selected{% endif %}>June</option>
+            <option value="july" {% if selected_month == 'july' %}selected{% endif %}>July</option>
+            <option value="august" {% if selected_month == 'august' %}selected{% endif %}>August</option>
+            <option value="september" {% if selected_month == 'september' %}selected{% endif %}>September</option>
+            <option value="october" {% if selected_month == 'october' %}selected{% endif %}>October</option>
+            <option value="november" {% if selected_month == 'november' %}selected{% endif %}>November</option>
+            <option value="december" {% if selected_month == 'december' %}selected{% endif %}>December</option>
+        </select>
+    </div>
+
+    <!-- Dues Table -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Room Rent</th>
+                    <th>Mess Bill</th>
+                    <th>Total Fee</th>
+                    <th>Paid Amount</th>
+                    <th>Balance</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>{{ student.Name }}</td>
+                    <td>₹2,300</td>
+                    <td>₹{{ "%.2f"|format(student.mess_bill) }}</td>
+                    <td>₹{{ "%.2f"|format(student.total_fee) }}</td>
+                    <td>₹{{ "%.2f"|format(student.PaidAmount or 0) }}</td>
+                    <td>₹{{ "%.2f"|format(student.balance) }}</td>
+                    <td>
+                        {% if student.balance <= 0 %}
+                            <span class="status paid">Paid</span>
+                        {% elif student.balance > 0 and student.balance <= 1000 %}
+                            <span class="status pending">Pending</span>
+                        {% else %}
+                            <span class="status overdue">Overdue</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function updateMonth(month) {
+    window.location.href = "{{ url_for('view_dues') }}?month=" + month;
+}
+</script>
+
+<style>
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: var(--text-color);
+}
+
+.month-selector {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.month-selector select {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    cursor: pointer;
+    max-width: 300px;
+    width: 100%;
+}
+
+.table-container {
+    overflow-x: auto;
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+
+tr:hover {
+    background-color: var(--hover-color);
+}
+
+.status {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.status.paid {
+    background-color: #e6f4ea;
+    color: #1e7e34;
+}
+
+.status.pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status.overdue {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    th, td {
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    .month-selector select {
+        max-width: 100%;
+    }
+}
+</style>
+{% endblock %} 

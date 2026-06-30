@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MealMate - Hostel Mess Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        /* Theme variables */
+        html[data-theme='light'] {
+            --primary: #00796b;
+            --primary-light: #48a999;
+            --secondary: #ff6f00;
+            --background: #f5f5f5;
+            --card-bg: #ffffff;
+            --text: #212121;
+            --text-secondary: #757575;
+            --border: #e0e0e0;
+            --table-stripe: #f8f8f8;
+            --table-hover: #e8f5e9;
+            --button-bg: var(--primary);
+            --button-hover: var(--primary-light);
+            --icon-bg: #e0f2f1;
+            --gradient-start: #00897b;
+            --gradient-end: #009688;
+            --card-shadow: rgba(0, 0, 0, 0.1);
+            --accent: #ff9800;
+            --header-text: #ffffff;
+            --pattern-opacity: 0.05;
+        }
+
+        html[data-theme='dark'] {
+            --primary: #26a69a;
+            --primary-light: #4db6ac;
+            --secondary: #ff9800;
+            --background: #121212;
+            --card-bg: #1e1e1e;
+            --text: #ffffff;
+            --text-secondary: #b0bec5;
+            --border: #333333;
+            --table-stripe: #2d2d2d;
+            --table-hover: #333333;
+            --button-bg: var(--primary);
+            --button-hover: var(--primary-light);
+            --icon-bg: #263238;
+            --gradient-start: #004d40;
+            --gradient-end: #00695c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Button styles */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--button-bg);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-info {
+            background-color: var(--primary-light);
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 4px var(--card-shadow);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: var(--primary);
+            color: var(--header-text);
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--table-stripe);
+        }
+
+        tr:hover {
+            background-color: var(--table-hover);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        /* Form elements */
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background-color: var(--card-bg);
+            color: var(--text);
+            resize: vertical;
+        }
+
+        /* Header styles */
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin: 0;
+        }
+
+        /* Menu container */
+        .menu-container {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px var(--card-shadow);
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    {% block content %}{% endblock %}
+</body>
+</html> 

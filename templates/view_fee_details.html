@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Fee Details</title>
+    <style>
+        /* Theme variables */
+        html[data-theme='light'] {
+            --primary: #000000;
+            --secondary: #333333;
+            --background: #e1d9cc;
+            --card-bg: #ffffff;
+            --text: #000000;
+            --text-secondary: #666666;
+            --border: #ddd;
+            --table-stripe: #f8f8f8;
+            --table-hover: #eee;
+            --success: #10B981;
+            --pending: #F59E0B;
+            --danger: #EF4444;
+        }
+
+        html[data-theme='dark'] {
+            --primary: #ffffff;
+            --secondary: #cccccc;
+            --background: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text: #ffffff;
+            --text-secondary: #999999;
+            --border: #444;
+            --table-stripe: #333333;
+            --table-hover: #404040;
+            --success: #34D399;
+            --pending: #FBBF24;
+            --danger: #F87171;
+        }
+
+        /* Logo styles */
+        html[data-theme='light'] .logo img.light-logo {
+            display: block;
+        }
+
+        html[data-theme='light'] .logo img.dark-logo {
+            display: none;
+        }
+
+        html[data-theme='dark'] .logo img.light-logo {
+            display: none;
+        }
+
+        html[data-theme='dark'] .logo img.dark-logo {
+            display: block;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--background);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--card-bg);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo img.light-logo,
+        .logo img.dark-logo {
+            width: 100px;
+            height: 100px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--text);
+        }
+
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-switch {
+            position: relative;
+            width: 60px;
+            height: 34px;
+        }
+
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--secondary);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--card-bg);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--text);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            flex-grow: 1;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+        }
+
+        .search-box {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+        }
+
+        .fee-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .fee-table th,
+        .fee-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .fee-table th {
+            background: var(--table-stripe);
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .fee-table tr:nth-child(even) {
+            background: var(--table-stripe);
+        }
+
+        .fee-table tr:hover {
+            background: var(--table-hover);
+        }
+
+        .status-paid {
+            color: var(--success);
+        }
+
+        .status-pending {
+            color: var(--pending);
+        }
+
+        .status-overdue {
+            color: var(--danger);
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            color: var(--card-bg);
+            background: var(--primary);
+            font-size: 0.9em;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+            
+            .dashboard-container {
+                padding: 0 15px;
+                margin: 20px auto;
+            }
+
+            .filter-container {
+                flex-direction: column;
+            }
+
+            .fee-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        .period-selector {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .period-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .period-header i {
+            font-size: 20px;
+            color: var(--primary-color);
+        }
+
+        .period-dropdown {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1em;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 16px;
+            padding-right: 35px;
+            transition: all 0.3s ease;
+        }
+
+        .period-dropdown:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .period-dropdown:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .period-dropdown option {
+            padding: 8px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        @media (max-width: 768px) {
+            .period-selector {
+                margin: 10px 15px;
+                padding: 10px;
+            }
+
+            .period-dropdown {
+                font-size: 0.9em;
+                padding: 6px 10px;
+            }
+        }
+
+        .btn-view {
+            padding: 5px 10px;
+            background-color: var(--primary);
+            color: var(--card-bg);
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-verify {
+            padding: 5px 10px;
+            background-color: var(--success);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .btn-reject {
+            padding: 5px 10px;
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .btn-verify:hover, .btn-reject:hover {
+            opacity: 0.9;
+        }
+
+        .pending-payments {
+            margin-top: 30px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+
+        .no-proof {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-start;
+        }
+
+        .btn-verify,
+        .btn-reject {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: opacity 0.2s;
+        }
+
+        .btn-verify {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-reject {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-verify:hover,
+        .btn-reject:hover {
+            opacity: 0.9;
+        }
+
+        .btn-view {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: var(--primary);
+            color: var(--card-bg);
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9em;
+            transition: opacity 0.2s;
+        }
+
+        .btn-view:hover {
+            opacity: 0.9;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="index.html" class="logo">
+            <img src="img/2.png" alt="MealMate Light Logo" class="light-logo">
+            <img src="img/1.png" alt="MealMate Dark Logo" class="dark-logo">
+            <span class="logo-text">MealMate Admin</span>
+        </a>
+        <div class="theme-switch-wrapper">
+            <span>🌞</span>
+            <label class="theme-switch">
+                <input type="checkbox" id="themeToggle">
+                <span class="slider"></span>
+            </label>
+            <span>🌙</span>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1 style="color: var(--text)">Student Fee Details</h1>
+        </div>
+
+        <!-- Month Selection Dropdown -->
+        <div class="period-selector">
+            <div class="period-header">
+                <i class="fas fa-calendar-alt"></i>
+                <select id="periodSelect" class="period-dropdown">
+                    <option value="current" {% if selected_month == 'current' %}selected{% endif %}>
+                        <i class="fas fa-calendar-week"></i> Current Week
+                    </option>
+                    <option value="january" {% if selected_month == 'january' %}selected{% endif %}>
+                        <i class="fas fa-snowflake"></i> January
+                    </option>
+                    <option value="february" {% if selected_month == 'february' %}selected{% endif %}>
+                        <i class="fas fa-heart"></i> February
+                    </option>
+                    <option value="march" {% if selected_month == 'march' %}selected{% endif %}>
+                        <i class="fas fa-leaf"></i> March
+                    </option>
+                    <option value="april" {% if selected_month == 'april' %}selected{% endif %}>
+                        <i class="fas fa-umbrella"></i> April
+                    </option>
+                    <option value="may" {% if selected_month == 'may' %}selected{% endif %}>
+                        <i class="fas fa-sun"></i> May
+                    </option>
+                    <option value="june" {% if selected_month == 'june' %}selected{% endif %}>
+                        <i class="fas fa-cloud-rain"></i> June
+                    </option>
+                    <option value="july" {% if selected_month == 'july' %}selected{% endif %}>
+                        <i class="fas fa-cloud"></i> July
+                    </option>
+                    <option value="august" {% if selected_month == 'august' %}selected{% endif %}>
+                        <i class="fas fa-cloud-sun"></i> August
+                    </option>
+                    <option value="september" {% if selected_month == 'september' %}selected{% endif %}>
+                        <i class="fas fa-wind"></i> September
+                    </option>
+                    <option value="october" {% if selected_month == 'october' %}selected{% endif %}>
+                        <i class="fas fa-ghost"></i> October
+                    </option>
+                    <option value="november" {% if selected_month == 'november' %}selected{% endif %}>
+                        <i class="fas fa-cloud-rain"></i> November
+                    </option>
+                    <option value="december" {% if selected_month == 'december' %}selected{% endif %}>
+                        <i class="fas fa-snowflake"></i> December
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-container">
+            <input type="text" class="search-box" id="searchBox" placeholder="Search by student name or registration number...">
+            <select class="filter-select" id="statusFilter">
+                <option value="all">All Status</option>
+                <option value="paid">Paid</option>
+                <option value="pending">Pending</option>
+                <option value="overdue">Overdue</option>
+            </select>
+        </div>
+
+        <div class="fee-table-container">
+            <table class="fee-table">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Registration No</th>
+                        <th>Room No</th>
+                        <th>Room Rent</th>
+                        <th>Mess Bill</th>
+                        <th>Total Fee</th>
+                        <th>Paid Amount</th>
+                        <th>Balance</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.Name }}</td>
+                        <td>{{ student.registration_no }}</td>
+                        <td>{{ student.RoomNo }}</td>
+                        <td>₹2,300</td>
+                        <td>₹{{ student.mess_bill }}</td>
+                        <td>₹{{ 2300 + student.mess_bill }}</td>
+                        <td>₹{{ student.PaidAmount|default(0) }}</td>
+                        <td>₹{{ (2300 + student.mess_bill) - (student.PaidAmount|default(0)) }}</td>
+                        <td>
+                            {% if (student.PaidAmount|default(0)) >= (2300 + student.mess_bill) %}
+                            <span class="status-paid">Paid</span>
+                            {% elif (student.PaidAmount|default(0)) > 0 %}
+                            <span class="status-pending">Pending</span>
+                            {% else %}
+                            <span class="status-overdue">Overdue</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="#" class="action-btn">View Details</a>
+                            <a href="#" class="action-btn">Send Reminder</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Replace the pending payments section with this updated version -->
+        <div class="card pending-payments">
+            <h2 class="card-title">Pending Payments</h2>
+            <div class="table-responsive">
+                <table class="fee-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Registration No</th>
+                            <th>Room No</th>
+                            <th>Transaction ID</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Proof</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in pending_payments %}
+                        <tr>
+                            <td>{{ payment.student.Name }}</td>
+                            <td>{{ payment.student.registration_no }}</td>
+                            <td>{{ payment.student.RoomNo }}</td>
+                            <td>{{ payment.TransactionID }}</td>
+                            <td>₹{{ "%.2f"|format(payment.Amount) }}</td>
+                            <td>{{ payment.PaymentDate.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                {% if payment.PaymentProof %}
+                                    <a href="#" 
+                                       class="btn-view proof-link"
+                                       data-proof-url="{{ url_for('static', filename=payment.PaymentProof) }}">
+                                        View Proof
+                                    </a>
+                                {% else %}
+                                    <span class="no-proof">No proof</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button type="button" 
+                                            class="btn-verify" 
+                                            data-payment-id="{{ payment.PaymentID }}"
+                                            onclick="verifyPayment(this.dataset.paymentId)">
+                                        Verify
+                                    </button>
+                                    <button type="button" 
+                                            class="btn-reject" 
+                                            data-payment-id="{{ payment.PaymentID }}"
+                                            onclick="rejectPayment(this.dataset.paymentId)">
+                                        Reject
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add the modal HTML at the end of the body tag, before the closing </body> -->
+    <div id="proofModal" class="modal">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        // Check for saved theme preference
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme) {
+            html.setAttribute('data-theme', currentTheme);
+            themeToggle.checked = currentTheme === 'dark';
+        }
+
+        // Theme switch handler
+        themeToggle.addEventListener('change', function(e) {
+            if (e.target.checked) {
+                html.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Search and Filter functionality
+        function handleFilters() {
+            const searchText = document.getElementById('searchBox').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const rows = document.querySelectorAll('.fee-table tbody tr');
+
+            rows.forEach(row => {
+                const studentName = row.cells[0].textContent.toLowerCase();
+                const regNo = row.cells[1].textContent.toLowerCase();
+                const status = row.cells[6].textContent.toLowerCase();
+                
+                const matchesSearch = studentName.includes(searchText) || regNo.includes(searchText);
+                const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
+                
+                row.style.display = matchesSearch && matchesStatus ? '' : 'none';
+            });
+        }
+
+        document.getElementById('searchBox').addEventListener('input', handleFilters);
+        document.getElementById('statusFilter').addEventListener('change', handleFilters);
+
+        // Period selection handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const periodSelect = document.getElementById('periodSelect');
+            
+            periodSelect.addEventListener('change', function() {
+                const selectedMonth = this.value;
+                window.location.href = `/view_fee_details?month=${selectedMonth}`;
+            });
+        });
+
+        // Payment verification functions
+        function verifyPayment(paymentId) {
+            if (confirm('Are you sure you want to verify this payment?')) {
+                fetch(`/verify_payment/${paymentId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'action=verify'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Payment verified successfully!');
+                        window.location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error verifying payment');
+                });
+            }
+        }
+
+        function rejectPayment(paymentId) {
+            if (confirm('Are you sure you want to reject this payment?')) {
+                fetch(`/verify_payment/${paymentId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'action=reject'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Payment rejected successfully!');
+                        window.location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error rejecting payment');
+                });
+            }
+        }
+
+        // Modal functions
+        function openModal(imgSrc) {
+            const modal = document.getElementById('proofModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'block';
+            modalImg.src = imgSrc;
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('proofModal');
+            modal.style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('proofModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        };
+
+        // Update the script section to include the event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click event listeners to all proof links
+            document.querySelectorAll('.proof-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const proofUrl = this.getAttribute('data-proof-url');
+                    openModal(proofUrl);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Payment - MealMate</title>
+    <style>
+        /* Theme variables */
+        html[data-theme='light'] {
+            --primary: #000000;
+            --secondary: #333333;
+            --background: #e1d9cc;
+            --card-bg: #ffffff;
+            --text: #000000;
+            --text-secondary: #666666;
+            --border: #ddd;
+            --table-stripe: #f8f8f8;
+            --table-hover: #eee;
+            --success: #10B981;
+            --pending: #F59E0B;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+        }
+
+        html[data-theme='dark'] {
+            --primary: #ffffff;
+            --secondary: #cccccc;
+            --background: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text: #ffffff;
+            --text-secondary: #999999;
+            --border: #444;
+            --table-stripe: #333333;
+            --table-hover: #404040;
+            --success: #34D399;
+            --pending: #FBBF24;
+            --danger: #F87171;
+            --warning: #F59E0B;
+        }
+
+        html[data-theme='light'] .logo img.light-logo {
+            display: block;
+        }
+
+        html[data-theme='dark'] .logo img.dark-logo {
+            display: block;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--background);
+            min-height: 100vh;
+        }
+
+        .header {
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--card-bg);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo img.light-logo {
+            display: none;
+            width: 100px;
+            height: 100px;
+        }
+
+        .logo img.dark-logo {
+            display: none;
+            width: 100px;
+            height: 100px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--text);
+        }
+
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-switch {
+            position: relative;
+            width: 60px;
+            height: 34px;
+        }
+
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--secondary);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--card-bg);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--text);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            color: var(--text);
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .fee-details {
+            display: grid;
+            gap: 15px;
+        }
+
+        .fee-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .fee-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+        }
+
+        .fee-label {
+            color: var(--text);
+        }
+
+        .fee-amount {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .status-paid {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .status-pending {
+            background-color: var(--pending);
+            color: black;
+        }
+
+        .status-overdue {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .payment-section {
+            display: none;
+        }
+
+        .payment-section.active {
+            display: block;
+        }
+
+        .qr-code {
+            max-width: 300px;
+            margin: 20px auto;
+            display: block;
+        }
+
+        .file-upload {
+            margin: 20px 0;
+        }
+
+        .file-upload label {
+            display: block;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+
+        .file-upload input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: var(--card-bg);
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .transaction-history {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .transaction-history h2 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .transaction-history table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .transaction-history th,
+        .transaction-history td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .transaction-history th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .transaction-history tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .transaction-history td:last-child {
+            font-weight: 500;
+        }
+
+        .receipt {
+            margin-top: 20px;
+            padding: 20px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .receipt-details {
+            margin-bottom: 20px;
+        }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .month-navigation {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .month-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .month-btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .month-btn.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #0056b3;
+        }
+
+        @media (max-width: 768px) {
+            .month-navigation {
+                justify-content: center;
+            }
+            
+            .month-btn {
+                font-size: 0.9rem;
+                padding: 0.4rem 0.8rem;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 1em;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-group input[type="file"] {
+            padding: 8px;
+        }
+
+        .receipt-section {
+            margin-top: 30px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .receipt-details {
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card-bg);
+        }
+
+        .receipt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .receipt-header h3 {
+            color: var(--text);
+            margin: 0;
+        }
+
+        .receipt-date {
+            color: var(--text-secondary);
+        }
+
+        .receipt-body {
+            margin-bottom: 20px;
+        }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 5px 0;
+        }
+
+        .receipt-row .label {
+            color: var(--text-secondary);
+        }
+
+        .receipt-row .value {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .receipt-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .no-receipt {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+        }
+
+        .status-paid {
+            color: var(--success);
+        }
+
+        .status-pending {
+            color: var(--pending);
+        }
+
+        .status-rejected {
+            color: var(--danger);
+        }
+
+        .btn-download {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-download:hover {
+            opacity: 0.9;
+        }
+
+        .status-pending {
+            color: var(--warning);
+        }
+
+        .status-rejected {
+            color: var(--danger);
+        }
+
+        .status-verified {
+            color: var(--success);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <img src="img/2.png" alt="MealMate Light Logo" class="light-logo">
+            <img src="img/1.png" alt="MealMate Dark Logo" class="dark-logo">
+            <span class="logo-text">MealMate</span>
+        </div>
+        <div class="theme-switch-wrapper">
+            <span>🌞</span>
+            <label class="theme-switch">
+                <input type="checkbox" id="themeToggle">
+                <span class="slider"></span>
+            </label>
+            <span>🌙</span>
+        </div>
+    </header>
+
+    <div class="month-navigation">
+        {% for month in months %}
+        <a href="{{ url_for('pay_fee', month=month) }}" 
+           class="month-btn {% if month == selected_month %}active{% endif %}">
+            {{ month }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <div class="container">
+        <div class="dashboard">
+            <div class="card">
+                <h2 class="card-title">Fee Details for {{ selected_month }} 2025</h2>
+                <div class="fee-details">
+                    <div class="fee-item">
+                        <span class="fee-label">Room Rent</span>
+                        <span class="fee-amount">₹{{ "%.2f"|format(room_rent) }}</span>
+                    </div>
+                    <div class="fee-item">
+                        <span class="fee-label">Mess Bill</span>
+                        <span class="fee-amount">₹{{ "%.2f"|format(mess_bill) }}</span>
+                    </div>
+                    <div class="fee-item">
+                        <span class="fee-label">Total Fee</span>
+                        <span class="fee-amount">₹{{ "%.2f"|format(total_fee) }}</span>
+                    </div>
+                    <div class="fee-item">
+                        <span class="fee-label">Total Paid</span>
+                        <span class="fee-amount">₹{{ "%.2f"|format(total_paid) }}</span>
+                    </div>
+                    <div class="fee-item">
+                        <span class="fee-label">Remaining Balance</span>
+                        <span class="fee-amount">₹{{ "%.2f"|format(remaining_balance) }}</span>
+                    </div>
+                </div>
+                {% if payment_allowed %}
+                    <button class="btn" id="payNowBtn">Pay Now</button>
+                {% elif pending_payment %}
+                    <button class="btn" disabled style="background-color: var(--warning)">Payment Under Verification</button>
+                {% elif latest_payment %}
+                    <button class="btn" disabled style="background-color: var(--success)">Paid for {{ selected_month }}</button>
+                {% endif %}
+            </div>
+
+            <div class="card payment-section" id="paymentSection">
+                <h2 class="card-title">Payment Details</h2>
+                <form id="paymentForm" onsubmit="submitPayment(event)">
+                    <div class="form-group">
+                        <label for="transactionId">Transaction ID</label>
+                        <input type="text" id="transactionId" required placeholder="Enter your transaction ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentMethod">Payment Method</label>
+                        <select id="paymentMethod" required>
+                            <option value="">Select payment method</option>
+                            <option value="UPI">UPI</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="Cash">Cash</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentDate">Payment Date</label>
+                        <input type="date" id="paymentDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentProof">Upload Payment Screenshot</label>
+                        <input type="file" id="paymentProof" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="btn">Submit Payment</button>
+                </form>
+            </div>
+
+            <div class="card transaction-history">
+                <h2>Transaction History for {{ selected_month }} 2025</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Month</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if transactions %}
+                            {% for transaction in transactions %}
+                                <tr>
+                                    <td>{{ transaction.PaymentDate.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ transaction.Month }}</td>
+                                    <td>₹{{ "%.2f"|format(transaction.Amount) }}</td>
+                                    <td>{{ transaction.Status }}</td>
+                                    <td>
+                                        {% if transaction.Status == 'Verified' %}
+                                            <button class="btn btn-download" onclick="downloadReceipt('{{ transaction.PaymentID }}')">Print Receipt</button>
+                                        {% elif transaction.Status == 'Pending' %}
+                                            <span class="status-pending">Awaiting Verification</span>
+                                        {% elif transaction.Status == 'Rejected' %}
+                                            <span class="status-rejected">Payment Rejected</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5">No transactions found for {{ selected_month }}</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card receipt-section">
+                <h2>Latest Receipt for {{ selected_month }} 2025</h2>
+                {% if latest_payment %}
+                <div class="receipt-details">
+                    <div class="receipt-header">
+                        <h3>Receipt #{{ latest_payment.PaymentID }}</h3>
+                        <span class="receipt-date">{{ latest_payment.PaymentDate.strftime('%Y-%m-%d') }}</span>
+                    </div>
+                    <div class="receipt-body">
+                        <div class="receipt-row">
+                            <span class="label">Amount:</span>
+                            <span class="value">₹{{ "%.2f"|format(latest_payment.Amount) }}</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="label">Status:</span>
+                            <span class="value {% if latest_payment.Status == 'Verified' %}status-paid{% elif latest_payment.Status == 'Pending' %}status-pending{% else %}status-rejected{% endif %}">
+                                {{ latest_payment.Status }}
+                            </span>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="label">Transaction ID:</span>
+                            <span class="value">{{ latest_payment.TransactionID }}</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="label">Payment Method:</span>
+                            <span class="value">{{ latest_payment.PaymentMethod }}</span>
+                        </div>
+                    </div>
+                    <div class="receipt-footer">
+                        <button class="btn" onclick="downloadReceipt()">Download Receipt</button>
+                    </div>
+                </div>
+                {% else %}
+                <div class="no-receipt">
+                    <p>No payment history found for {{ selected_month }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        // Check for saved theme preference
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme) {
+            html.setAttribute('data-theme', currentTheme);
+            themeToggle.checked = currentTheme === 'dark';
+        }
+
+        // Theme switch handler
+        themeToggle.addEventListener('change', function(e) {
+            if (e.target.checked) {
+                html.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Set up payment date input with current month
+        document.addEventListener('DOMContentLoaded', function() {
+            const paymentDateInput = document.getElementById('paymentDate');
+            const selectedMonth = '{{ selected_month }}';
+            const monthMap = {
+                'January': '01', 'February': '02', 'March': '03', 'April': '04',
+                'May': '05', 'June': '06', 'July': '07', 'August': '08',
+                'September': '09', 'October': '10', 'November': '11', 'December': '12'
+            };
+            
+            // Set min and max dates for the selected month in 2025
+            const monthNum = monthMap[selectedMonth];
+            const year = 2025;
+            const lastDay = new Date(year, parseInt(monthNum), 0).getDate();
+            
+            paymentDateInput.min = `2025-${monthNum}-01`;
+            paymentDateInput.max = `2025-${monthNum}-${lastDay}`;
+            paymentDateInput.value = `2025-${monthNum}-01`;
+        });
+
+        // Payment Section Toggle
+        document.getElementById('payNowBtn').addEventListener('click', function() {
+            document.getElementById('paymentSection').classList.add('active');
+            this.disabled = true;
+        });
+
+        // Submit Payment Handler
+        function submitPayment(event) {
+            event.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('transaction_id', document.getElementById('transactionId').value);
+            formData.append('payment_method', document.getElementById('paymentMethod').value);
+            formData.append('payment_date', document.getElementById('paymentDate').value);
+            formData.append('payment_proof', document.getElementById('paymentProof').files[0]);
+            
+            // Send payment details to server
+            fetch('/submit_payment', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Payment details submitted successfully! Your payment is under verification.');
+                    document.getElementById('paymentSection').classList.remove('active');
+                    document.getElementById('payNowBtn').disabled = false;
+                    // Refresh the page to show updated status
+                    window.location.reload();
+                } else {
+                    alert('Error submitting payment: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error submitting payment. Please try again.');
+            });
+        }
+
+        function downloadReceipt(paymentId) {
+            // Get receipt details for the specific payment
+            const row = event.target.closest('tr');
+            const date = row.cells[0].textContent;
+            const amount = row.cells[2].textContent;
+            const status = row.cells[3].textContent;
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('payment_id', paymentId);
+            formData.append('date', date);
+            formData.append('amount', amount);
+            formData.append('status', status);
+            formData.append('student_id', '{{ student.StudentID }}');  // Add student ID
+            formData.append('transaction_id', '{{ latest_payment.TransactionID if latest_payment else "" }}');
+            formData.append('payment_method', '{{ latest_payment.PaymentMethod if latest_payment else "" }}');
+            
+            // Send request to generate PDF
+            fetch('/generate_receipt', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                // Create download link
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `receipt_${date}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error generating receipt. Please try again.');
+            });
+        }
+    </script>
+</body>
+</html> 

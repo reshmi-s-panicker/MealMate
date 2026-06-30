@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Your Dues</h1>
+    
+    <div class="dues-card">
+        <div class="dues-details">
+            <div class="detail-row">
+                <span class="label">Room Rent:</span>
+                <span class="value">₹2,300</span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Mess Bill:</span>
+                <span class="value">₹{{ "%.2f"|format(mess_bill) }}</span>
+            </div>
+            <div class="detail-row total">
+                <span class="label">Total Fee:</span>
+                <span class="value">₹{{ "%.2f"|format(total_fee) }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Paid Amount:</span>
+                <span class="value">₹{{ "%.2f"|format(student.PaidAmount or 0) }}</span>
+            </div>
+            <div class="detail-row balance">
+                <span class="label">Balance:</span>
+                <span class="value {% if balance <= 0 %}paid{% elif balance > 0 and balance <= 1000 %}pending{% else %}overdue{% endif %}">
+                    ₹{{ "%.2f"|format(balance) }}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: var(--text-color);
+}
+
+.dues-card {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dues-details {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-row.total {
+    font-weight: bold;
+    font-size: 1.2em;
+    border-top: 2px solid var(--border-color);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.detail-row.balance {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.label {
+    color: var(--text-color);
+}
+
+.value {
+    font-weight: 500;
+}
+
+.value.paid {
+    color: #1e7e34;
+}
+
+.value.pending {
+    color: #856404;
+}
+
+.value.overdue {
+    color: #721c24;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .dues-card {
+        padding: 20px;
+    }
+    
+    .detail-row {
+        padding: 10px;
+    }
+}
+</style>
+{% endblock %}

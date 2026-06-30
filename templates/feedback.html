@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenant Feedback</title>
+    <style>
+        /* Theme variables */
+        html[data-theme='light'] {
+            --primary: #000000;
+            --secondary: #333333;
+            --background: #e1d9cc;
+            --card-bg: #ffffff;
+            --text: #000000;
+            --text-secondary: #666666;
+            --border: #ddd;
+            --table-stripe: #f8f8f8;
+            --table-hover: #eee;
+            --success: #10B981;
+            --pending: #F59E0B;
+            --danger: #EF4444;
+        }
+
+        html[data-theme='dark'] {
+            --primary: #ffffff;
+            --secondary: #cccccc;
+            --background: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text: #ffffff;
+            --text-secondary: #999999;
+            --border: #444;
+            --table-stripe: #333333;
+            --table-hover: #404040;
+            --success: #34D399;
+            --pending: #FBBF24;
+            --danger: #F87171;
+        }
+
+        html[data-theme='light'] .logo img.light-logo {
+            display: block;
+        }
+
+        html[data-theme='dark'] .logo img.dark-logo {
+            display: block;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--background);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--card-bg);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo img.light-logo {
+            display: none;
+            width: 100px;
+            height: 100px;
+        }
+
+        .logo img.dark-logo {
+            display: none;
+            width: 100px;
+            height: 100px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--text);
+        }
+
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-switch {
+            position: relative;
+            width: 60px;
+            height: 34px;
+        }
+
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--secondary);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--card-bg);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--text);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            flex-grow: 1;
+        }
+
+        .feedback-container {
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+        }
+
+        .feedback-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .feedback-header h1 {
+            color: var(--text);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feedback-header p {
+            color: var(--text-secondary);
+        }
+
+        .rating-container {
+            margin-bottom: 2rem;
+        }
+
+        .rating-container label {
+            color: var(--text);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .rating-stars {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .star-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 2rem;
+            color: var(--border);
+            transition: color 0.2s;
+        }
+
+        .star-btn:hover,
+        .star-btn.active {
+            color: var(--pending);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            color: var(--text);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .category-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .category-btn {
+            background-color: var(--table-stripe);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-btn:hover,
+        .category-btn.active {
+            background-color: var(--primary);
+            color: var(--card-bg);
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: var(--primary);
+            color: var(--card-bg);
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 15px 20px;
+            }
+            
+            .container {
+                padding: 0 15px;
+                margin: 20px auto;
+            }
+
+            .feedback-container {
+                padding: 20px;
+            }
+
+            .star-btn {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Add these styles for the success popup */
+        .success-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+        }
+
+        .success-popup h2 {
+            color: var(--success);
+            margin-bottom: 1rem;
+        }
+
+        .success-popup p {
+            color: var(--text);
+            margin-bottom: 1.5rem;
+        }
+
+        .success-popup button {
+            background: var(--primary);
+            color: var(--card-bg);
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .success-popup button:hover {
+            opacity: 0.9;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="index.html" class="logo">
+            <img src="img/2.png" alt="MealMate Light Logo" class="light-logo">
+            <img src="img/1.png" alt="MealMate Dark Logo" class="dark-logo">
+            <span class="logo-text">MealMate</span>
+        </a>
+        <div class="theme-switch-wrapper">
+            <span>🌞</span>
+            <label class="theme-switch">
+                <input type="checkbox" id="themeToggle">
+                <span class="slider"></span>
+            </label>
+            <span>🌙</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="feedback-container">
+            <div class="feedback-header">
+                <h1>Student Feedback</h1>
+                <p>Help us improve your living experience</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('feedback') }}" class="feedback-form">
+                <div class="rating-container">
+                    <label>Rate your experience:</label>
+                    <div class="rating-stars">
+                        <input type="hidden" name="rating" id="rating" value="0">
+                        <button type="button" class="star-btn" data-rating="1">★</button>
+                        <button type="button" class="star-btn" data-rating="2">★</button>
+                        <button type="button" class="star-btn" data-rating="3">★</button>
+                        <button type="button" class="star-btn" data-rating="4">★</button>
+                        <button type="button" class="star-btn" data-rating="5">★</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Categories (Select all that apply):</label>
+                    <div class="category-buttons">
+                        <input type="hidden" name="categories" id="categories" value="">
+                        <button type="button" class="category-btn" data-category="Food Quality">Food Quality</button>
+                        <button type="button" class="category-btn" data-category="Service">Service</button>
+                        <button type="button" class="category-btn" data-category="Cleanliness">Cleanliness</button>
+                        <button type="button" class="category-btn" data-category="Menu Variety">Menu Variety</button>
+                        <button type="button" class="category-btn" data-category="Other">Other</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="comments">Your Feedback:</label>
+                    <textarea name="comments" id="comments" rows="5" required></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">Submit Feedback</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="success-popup" id="successPopup">
+        <h2>Success!</h2>
+        <p>Your feedback has been submitted successfully.</p>
+        <button onclick="closePopup()">OK</button>
+    </div>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        // Check for saved theme preference
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme) {
+            html.setAttribute('data-theme', currentTheme);
+            themeToggle.checked = currentTheme === 'dark';
+        }
+
+        // Theme switch handler
+        themeToggle.addEventListener('change', function(e) {
+            if (e.target.checked) {
+                html.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Rating stars functionality
+        const ratingStars = document.querySelectorAll('.star-btn');
+        const ratingInput = document.getElementById('rating');
+
+        ratingStars.forEach(star => {
+            star.addEventListener('click', () => {
+                const rating = star.dataset.rating;
+                ratingInput.value = rating;
+                
+                // Update stars visual
+                ratingStars.forEach(s => {
+                    if (s.dataset.rating <= rating) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Category buttons functionality
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const categoriesInput = document.getElementById('categories');
+        const selectedCategories = new Set();
+
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const category = btn.dataset.category;
+                
+                if (selectedCategories.has(category)) {
+                    // Remove category if already selected
+                    selectedCategories.delete(category);
+                    btn.classList.remove('active');
+                } else {
+                    // Add category if not selected
+                    selectedCategories.add(category);
+                    btn.classList.add('active');
+                }
+                
+                // Update hidden input with comma-separated categories
+                categoriesInput.value = Array.from(selectedCategories).join(',');
+            });
+        });
+
+        // Form submission
+        const form = document.querySelector('.feedback-form');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Show success popup
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('successPopup').style.display = 'block';
+            
+            // Submit the form after a short delay
+            setTimeout(() => {
+                form.submit();
+            }, 2000);
+        });
+
+        // Function to close popup
+        function closePopup() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('successPopup').style.display = 'none';
+        }
+
+        // Close popup when clicking overlay
+        document.getElementById('overlay').addEventListener('click', closePopup);
+    </script>
+</body>
+</html>

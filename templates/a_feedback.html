@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Feedback</title>
+    <style>
+        /* Theme variables */
+        html[data-theme='light'] {
+            --primary: #000000;
+            --secondary: #333333;
+            --background: #e1d9cc;
+            --card-bg: #ffffff;
+            --text: #000000;
+            --text-secondary: #666666;
+            --border: #ddd;
+            --table-stripe: #f8f8f8;
+            --table-hover: #eee;
+            --success: #10B981;
+            --pending: #F59E0B;
+            --danger: #EF4444;
+        }
+
+        html[data-theme='dark'] {
+            --primary: #ffffff;
+            --secondary: #cccccc;
+            --background: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text: #ffffff;
+            --text-secondary: #999999;
+            --border: #444;
+            --table-stripe: #333333;
+            --table-hover: #404040;
+            --success: #34D399;
+            --pending: #FBBF24;
+            --danger: #F87171;
+        }
+
+        /* Logo styles */
+        html[data-theme='light'] .logo img.light-logo {
+            display: block;
+        }
+
+        html[data-theme='light'] .logo img.dark-logo {
+            display: none;
+        }
+
+        html[data-theme='dark'] .logo img.light-logo {
+            display: none;
+        }
+
+        html[data-theme='dark'] .logo img.dark-logo {
+            display: block;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--background);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--card-bg);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo img.light-logo,
+        .logo img.dark-logo {
+            width: 100px;
+            height: 100px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--text);
+        }
+
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-switch {
+            position: relative;
+            width: 60px;
+            height: 34px;
+        }
+
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--secondary);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--card-bg);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--text);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            flex-grow: 1;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+        }
+
+        .feedback-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .feedback-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .feedback-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .student-info {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .rating {
+            color: var(--pending);
+            font-size: 1.2em;
+        }
+
+        .category-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            background: var(--table-stripe);
+            color: var(--text);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .feedback-content {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            line-height: 1.5;
+            margin: 15px 0;
+        }
+
+        .feedback-date {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+            
+            .dashboard-container {
+                padding: 0 15px;
+                margin: 20px auto;
+            }
+
+            .filter-container {
+                flex-direction: column;
+            }
+
+            .feedback-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="index.html" class="logo">
+            <img src="img/2.png" alt="MealMate Light Logo" class="light-logo">
+            <img src="img/1.png" alt="MealMate Dark Logo" class="dark-logo">
+            <span class="logo-text">MealMate Admin</span>
+        </a>
+        <div class="theme-switch-wrapper">
+            <span>🌞</span>
+            <label class="theme-switch">
+                <input type="checkbox" id="themeToggle">
+                <span class="slider"></span>
+            </label>
+            <span>🌙</span>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1 style="color: var(--text)">Student Feedback Dashboard</h1>
+        </div>
+
+        <div class="filter-container">
+            <select class="filter-select" id="categoryFilter">
+                <option value="all">All Categories</option>
+                <option value="Food Quality">Food Quality</option>
+                <option value="Service">Service</option>
+                <option value="Cleanliness">Cleanliness</option>
+                <option value="Menu Variety">Menu Variety</option>
+                <option value="Other">Other</option>
+            </select>
+            <select class="filter-select" id="ratingFilter">
+                <option value="all">All Ratings</option>
+                <option value="5">5 Stars</option>
+                <option value="4">4 Stars</option>
+                <option value="3">3 Stars</option>
+                <option value="2">2 Stars</option>
+                <option value="1">1 Star</option>
+            </select>
+        </div>
+
+        <div class="feedback-grid" id="feedbackGrid">
+            {% for feedback, student in feedbacks %}
+            <div class="feedback-card">
+                <div class="feedback-card-header">
+                    <div class="rating">{{ '★' * feedback.Rating }}{{ '☆' * (5 - feedback.Rating) }}</div>
+                </div>
+                <div class="student-info">
+                    <strong>{{ student.Name }}</strong> ({{ student.registration_no }})<br>
+                    Room: {{ student.RoomNo }}
+                </div>
+                {% if feedback.Category %}
+                <span class="category-tag">{{ feedback.Category }}</span>
+                {% endif %}
+                <p class="feedback-content">{{ feedback.Comments }}</p>
+                <p class="feedback-date">Submitted on: {{ feedback.FeedbackDate.strftime('%Y-%m-%d') }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme) {
+            html.setAttribute('data-theme', currentTheme);
+            themeToggle.checked = currentTheme === 'dark';
+        }
+
+        themeToggle.addEventListener('change', function(e) {
+            if (e.target.checked) {
+                html.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Filter functionality
+        function handleFilters() {
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const ratingFilter = document.getElementById('ratingFilter').value;
+            const cards = document.querySelectorAll('.feedback-card');
+
+            cards.forEach(card => {
+                const category = card.querySelector('.category-tag')?.textContent || '';
+                const rating = card.querySelector('.rating').textContent.length;
+                
+                const categoryMatch = categoryFilter === 'all' || category.includes(categoryFilter);
+                const ratingMatch = ratingFilter === 'all' || rating === parseInt(ratingFilter);
+                
+                card.style.display = categoryMatch && ratingMatch ? 'block' : 'none';
+            });
+        }
+
+        document.getElementById('categoryFilter').addEventListener('change', handleFilters);
+        document.getElementById('ratingFilter').addEventListener('change', handleFilters);
+    </script>
+</body>
+</html>

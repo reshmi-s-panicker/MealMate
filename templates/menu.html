@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="logo">
+    <img src="img/2.png" alt="MealMate Light Logo" class="light-logo">
+    <img src="img/1.png" alt="MealMate Dark Logo" class="dark-logo">
+    <span class="logo-text">MealMate</span>
+</div>
+
+<div class="theme-switch-wrapper">
+    <span>🌞</span>
+    <label class="theme-switch">
+        <input type="checkbox" id="theme-toggle">
+        <span class="slider"></span>
+    </label>
+    <span>🌙</span>
+</div>
+
+<div class="container">
+    <div class="header">
+        <h1>Weekly Mess Menu</h1>
+        <p>Select your meals for the week</p>
+    </div>
+
+    <table class="menu-table">
+        <thead>
+            <tr>
+                <th>Day</th>
+                <th>Breakfast</th>
+                <th>Lunch</th>
+                <th>Dinner</th>
+                <th>Select</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for menu in weekly_menu %}
+            <tr>
+                <td>{{ menu.date }}</td>
+                <td>{{ menu.breakfast }}</td>
+                <td>{{ menu.lunch }}</td>
+                <td>{{ menu.dinner }}</td>
+                <td class="meal-checkbox">
+                    <div class="meal-selections">
+                        <label class="checkbox-label">
+                            <input type="checkbox" 
+                                   class="custom-checkbox" 
+                                   data-date="{{ menu.date }}"
+                                   data-meal="breakfast"
+                                   {% if selections and selections[loop.index0] and selections[loop.index0].breakfast == 'Yes' %}checked{% endif %}>
+                            <span>Breakfast</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" 
+                                   class="custom-checkbox" 
+                                   data-date="{{ menu.date }}"
+                                   data-meal="lunch"
+                                   {% if selections and selections[loop.index0] and selections[loop.index0].lunch == 'Yes' %}checked{% endif %}>
+                            <span>Lunch</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" 
+                                   class="custom-checkbox" 
+                                   data-date="{{ menu.date }}"
+                                   data-meal="dinner"
+                                   {% if selections and selections[loop.index0] and selections[loop.index0].dinner == 'Yes' %}checked{% endif %}>
+                            <span>Dinner</span>
+                        </label>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <button class="save-selections" onclick="saveSelections()">Save Meal Selections</button>
+</div>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Light Theme Variables */
+html[data-theme='light'] {
+    --primary: #000000;
+    --secondary: #333333;
+    --background: #e1d9cc;
+    --card-bg: #ffffff;
+    --text: #000000;
+    --text-secondary: #666666;
+    --border: #ddd;
+    --table-stripe: #f8f8f8;
+    --table-hover: #eee;
+}
+
+/* Dark Theme Variables */
+html[data-theme='dark'] {
+    --primary: #ffffff;
+    --secondary: #cccccc;
+    --background: #1a1a1a;
+    --card-bg: #2d2d2d;
+    --text: #ffffff;
+    --text-secondary: #999999;
+    --border: #444;
+    --table-stripe: #333333;
+    --table-hover: #404040;
+}
+
+html[data-theme='light'] .logo img.light-logo {
+    display: block;
+}
+
+html[data-theme='dark'] .logo img.dark-logo {
+    display: block;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--text);
+    padding: 2rem;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 2rem;
+}
+
+.logo-text {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--text);
+}
+
+.logo img.light-logo {
+    display: none;
+    width: 100px;
+    height: 100px;
+}
+
+.logo img.dark-logo {
+    display: none;
+    width: 100px;
+    height: 100px;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.header h1 {
+    color: var(--primary);
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Theme Toggle Switch */
+.theme-switch-wrapper {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.theme-switch {
+    position: relative;
+    width: 50px;
+    height: 24px;
+}
+
+.theme-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--secondary);
+    border-radius: 34px;
+    transition: 0.4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: var(--card-bg);
+    border-radius: 50%;
+    transition: 0.4s;
+}
+
+input:checked + .slider {
+    background-color: var(--text);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.menu-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-size: 0.9rem;
+}
+
+.menu-table th, .menu-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+
+.menu-table th {
+    background: var(--primary);
+    color: var(--card-bg);
+}
+
+.menu-table tr:nth-child(even) {
+    background: var(--table-stripe);
+}
+
+.menu-table tr:hover {
+    background: var(--table-hover);
+}
+
+.meal-checkbox {
+    text-align: center;
+}
+
+.meal-selections {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.85rem;
+}
+
+.custom-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    appearance: none;
+    border: 2px solid var(--primary);
+    border-radius: 4px;
+    background: var(--card-bg);
+    transition: all 0.3s;
+    position: relative;
+}
+
+.custom-checkbox:checked {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.custom-checkbox:checked::after {
+    content: "✓";
+    position: absolute;
+    color: white;
+    font-size: 12px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+}
+
+.save-selections {
+    display: block;
+    margin: 1.5rem auto;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary);
+    color: var(--card-bg);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s;
+}
+
+.save-selections:hover {
+    background: var(--secondary);
+}
+</style>
+
+<script>
+// Theme toggle functionality
+const toggleSwitch = document.getElementById('theme-toggle');
+const html = document.documentElement;
+
+const currentTheme = localStorage.getItem('theme');
+if (currentTheme) {
+    html.setAttribute('data-theme', currentTheme);
+    toggleSwitch.checked = currentTheme === 'dark';
+}
+
+toggleSwitch.addEventListener('change', function(e) {
+    const theme = e.target.checked ? 'dark' : 'light';
+    html.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+});
+
+// Function to save selections
+function saveSelections() {
+    const checkboxes = document.querySelectorAll('.custom-checkbox');
+    const selections = [];
+    
+    checkboxes.forEach(checkbox => {
+        selections.push({
+            date: checkbox.dataset.date,
+            mealType: checkbox.dataset.meal,
+            isSelected: checkbox.checked
+        });
+    });
+    
+    // Save each selection
+    Promise.all(selections.map(selection => 
+        fetch('{{ url_for("select_meals") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(selection)
+        }).then(response => response.json())
+    ))
+    .then(results => {
+        const allSuccess = results.every(result => result.success);
+        if (allSuccess) {
+            alert('Meal selections have been saved successfully!');
+            setTimeout(() => {
+                window.location.href = '{{ url_for("slogin") }}';
+            }, 1000);
+        } else {
+            alert('Error saving some selections. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving selections. Please try again.');
+    });
+}
+</script>
+{% endblock %}

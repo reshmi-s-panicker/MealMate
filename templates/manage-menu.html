@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Menu - MealMate</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Theme Variables */
+        html[data-theme='light'] {
+            --primary: #000000;
+            --secondary: #333333;
+            --background: #e1d9cc;
+            --card-bg: #ffffff;
+            --text: #000000;
+            --text-secondary: #666666;
+            --border: #ddd;
+            --success: #28a745;
+            --button-bg: var(--primary);
+            --button-hover: #333333;
+            --icon-bg: var(--background);
+        }
+
+        html[data-theme='dark'] {
+            --primary: #ffffff;
+            --secondary: #cccccc;
+            --background: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text: #ffffff;
+            --text-secondary: #999999;
+            --border: #444;
+            --success: #28a745;
+            --button-bg: var(--primary);
+            --button-hover: #cccccc;
+            --icon-bg: var(--secondary);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: var(--card-bg);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .back-button {
+            color: var(--text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--secondary);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--card-bg);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--text);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .menu-form {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .form-group input[type="date"],
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--card-bg);
+            color: var(--text);
+        }
+
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+
+        .current-menu {
+            margin-top: 2rem;
+        }
+
+        .current-menu h2 {
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+
+        .menu-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .menu-table th,
+        .menu-table td {
+            padding: 1rem;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+
+        .menu-table th {
+            background-color: var(--text);
+            color: #000000;
+            font-weight: bold;
+        }
+
+        .menu-table tr:nth-child(even) {
+            background-color: var(--table-stripe);
+        }
+
+        .menu-table tr:hover {
+            background-color: var(--table-hover);
+        }
+
+        .meal-selections {
+            margin-top: 30px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .meal-selections h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .selections-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .selections-table th,
+        .selections-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .selections-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+        
+        .selections-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .selected {
+            color: #000;
+            font-weight: bold;
+        }
+        
+        .not-selected {
+            color: var(--text-secondary);
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .day-card {
+            background-color: var(--background);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            text-align: center;
+            position: relative;
+        }
+
+        .day-header {
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .date-display {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .day-select-btn {
+            background-color: var(--button-bg);
+            color: var(--card-bg);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        .day-select-btn:hover {
+            background-color: var(--button-hover);
+        }
+
+        .selected {
+            background-color: var(--success);
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--button-bg);
+            color: var(--card-bg);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--button-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--text-secondary);
+            color: var(--card-bg);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--secondary);
+        }
+
+        .success-message {
+            display: none;
+            background-color: var(--success);
+            color: white;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .meal-options {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border-radius: 5px;
+            border: 1px solid var(--border);
+        }
+
+        .meal-options.show {
+            display: block;
+        }
+
+        .meal-input {
+            margin-bottom: 1rem;
+        }
+
+        .meal-input label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .meal-input textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 5px;
+            border: 1px solid var(--border);
+            background-color: var(--card-bg);
+            color: var(--text);
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .selected {
+            background-color: var(--success);
+        }
+
+        .selected textarea {
+            color: #000;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 0.5rem;
+            cursor: pointer;
+            color: var(--text);
+            font-size: 1.2rem;
+        }
+
+        .meal-status {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .meal-status.selected {
+            color: #000;
+            font-weight: bold;
+        }
+
+        @media (max-width: 1200px) {
+            .menu-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .menu-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .selections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .date-box {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .date-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .date-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .selections-list {
+            padding: 1rem;
+        }
+
+        .selection-card {
+            background-color: var(--background);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .selection-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .student-info {
+            margin-bottom: 0.8rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .student-info h4 {
+            margin: 0;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .registration-no {
+            margin: 0.3rem 0 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .meal-selections {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: space-between;
+        }
+
+        .meal-item {
+            flex: 1;
+            padding: 0.5rem;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .meal-item.selected {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .meal-item.not-selected {
+            background-color: var(--border);
+            color: var(--text-secondary);
+        }
+
+        .no-selections {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .no-selections i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .selections-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .meal-selections {
+                flex-wrap: wrap;
+            }
+
+            .meal-item {
+                flex: 1 1 calc(33.333% - 0.67rem);
+                min-width: 80px;
+            }
+        }
+
+        .calendar-container {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--text);
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-btn {
+            background: none;
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        .nav-btn:hover {
+            background-color: var(--border);
+        }
+
+        .calendar-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            background-color: var(--card-bg);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .weekdays div {
+            font-weight: bold;
+            padding: 0.5rem;
+            color: var(--text);
+            background-color: var(--background);
+            border-radius: 4px;
+        }
+
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .day {
+            aspect-ratio: 1;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--card-bg);
+            transition: all 0.3s ease;
+            min-height: 80px;
+        }
+
+        .day.has-selections {
+            background-color: var(--background);
+            border-color: var(--success);
+        }
+
+        .day-number {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .day:not(.empty):hover {
+            background-color: var(--border);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .day.empty {
+            background-color: transparent;
+            border: none;
+            cursor: default;
+        }
+
+        .selection-indicator {
+            position: absolute;
+            bottom: 0.25rem;
+            width: 8px;
+            height: 8px;
+            background-color: var(--success);
+            border-radius: 50%;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: var(--card-bg);
+            margin: 10% auto;
+            padding: 2rem;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        .close-modal:hover {
+            color: var(--text-secondary);
+        }
+
+        #modalDate {
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+
+        .selections-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .selection-card {
+            background-color: var(--background);
+            border-radius: 6px;
+            padding: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .student-info {
+            margin-bottom: 0.8rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .student-info h4 {
+            margin: 0;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .registration-no {
+            margin: 0.3rem 0 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .meal-selections {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: space-between;
+        }
+
+        .meal-item {
+            flex: 1;
+            padding: 0.5rem;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .meal-item.selected {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .meal-item.not-selected {
+            background-color: var(--border);
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .calendar-grid {
+                padding: 0.5rem;
+            }
+
+            .day {
+                padding: 0.25rem;
+            }
+
+            .day-number {
+                font-size: 0.9rem;
+            }
+        }
+
+        .meal-totals {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+        .meal-totals h3 {
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+        .meal-totals ul {
+            list-style: none;
+            padding: 0;
+        }
+        .meal-totals li {
+            color: var(--text);
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        .meal-section h3 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .month-navigation {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            padding: 0 1rem;
+        }
+
+        .month-btn {
+            padding: 0.5rem 1rem;
+            background-color: #f5f5f5;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .month-btn:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .month-btn.active {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+            .month-navigation {
+                gap: 0.25rem;
+            }
+            
+            .month-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+                min-width: 80px;
+            }
+        }
+
+        /* Add these styles for selections summary */
+        .selections-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 5px;
+        }
+
+        .meal-count {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 5px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+        }
+
+        .meal-label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .count {
+            background-color: #4CAF50;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.9em;
+        }
+
+        .weekly-menu-section, .student-selections-section {
+            margin: 20px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .menu-table, .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .menu-table th, .menu-table td,
+        .calendar-table th, .calendar-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .menu-table th, .calendar-table th {
+            background-color: #f5f5f5;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+
+        .month-navigation {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .month-btn {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .month-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .month-btn.active {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .menu-items div, .selection-counts div {
+            margin: 5px 0;
+        }
+
+        .selection-counts {
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+            text-align: center;
+        }
+
+        .selection-counts .total-count {
+            margin: 0.2rem 0;
+            padding: 0.2rem;
+            background-color: var(--success);
+            color: white;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .total-students {
+            text-align: center;
+            margin: 1rem 0;
+            padding: 0.5rem;
+            background-color: var(--success);
+            color: white;
+            border-radius: 4px;
+        }
+
+        .meal-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .meal-section {
+            background-color: var(--background);
+            padding: 1rem;
+            border-radius: 4px;
+        }
+
+        .meal-section h4 {
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .student-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background-color: var(--card-bg);
+            border-radius: 4px;
+        }
+
+        .student-name {
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .student-regno {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .no-students {
+            text-align: center;
+            padding: 1rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 2rem;
+            color: #dc3545;
+            background-color: rgba(220, 53, 69, 0.1);
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+
+        .error-message h3 {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-section">
+            <a href="alogin.html" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </div>
+        <h1>Manage Menu</h1>
+        <div class="theme-switch-wrapper">
+            <span style="color: var(--text-secondary)">🌞</span>
+            <label class="switch">
+                <input type="checkbox" id="themeToggle">
+                <span class="slider"></span>
+            </label>
+            <span style="color: var(--text-secondary)">🌙</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="successMessage" class="success-message">
+            Menu updated successfully!
+        </div>
+
+        <!-- Weekly Menu Management Section -->
+        <div class="weekly-menu-section">
+            <h2>Weekly Menu Management</h2>
+            <form method="POST" action="{{ url_for('manage_menu') }}">
+                <table class="menu-table">
+                    <thead>
+                        <tr>
+                            <th style="color: #000000;">Date</th>
+                            <th style="color: #000000;">Breakfast</th>
+                            <th style="color: #000000;">Lunch</th>
+                            <th style="color: #000000;">Dinner</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for menu in weekly_menu %}
+                        <tr>
+                            <td>{{ menu.date }}</td>
+                            <td>
+                                <textarea name="breakfast_{{ menu.date }}" rows="3">{{ menu.breakfast }}</textarea>
+                            </td>
+                            <td>
+                                <textarea name="lunch_{{ menu.date }}" rows="3">{{ menu.lunch }}</textarea>
+                            </td>
+                            <td>
+                                <textarea name="dinner_{{ menu.date }}" rows="3">{{ menu.dinner }}</textarea>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <button type="submit" class="submit-btn">Update Menu</button>
+            </form>
+        </div>
+
+        <!-- Student Meal Selections Section -->
+        <div class="student-selections-section">
+            <h2>Student Meal Selections</h2>
+            <div class="calendar-container">
+                <!-- Month Navigation -->
+                <div class="month-navigation">
+                    {% set months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] %}
+                    {% for month in months %}
+                        <a href="{{ url_for('manage_menu', month=month.lower()) }}" 
+                           class="month-btn {% if loop.index == current_month %}active{% endif %}">
+                            {{ month }}
+                        </a>
+                    {% endfor %}
+                </div>
+
+                <!-- Calendar Grid -->
+                <div class="calendar-grid">
+                    <div class="weekdays">
+                        <div>Sun</div>
+                        <div>Mon</div>
+                        <div>Tue</div>
+                        <div>Wed</div>
+                        <div>Thu</div>
+                        <div>Fri</div>
+                        <div>Sat</div>
+                    </div>
+                    <div class="days">
+                        {% set first_date = monthly_menu[0].date %}
+                        {% set first_day = first_date.split('-')[2]|int %}
+                        {% set first_month = first_date.split('-')[1]|int %}
+                        {% set first_year = first_date.split('-')[0]|int %}
+                        
+                        {# Calculate first day of week (0 = Sunday, 6 = Saturday) #}
+                        {% set weekday = namespace(value=0) %}
+                        {% set temp_date = first_date.split('-') %}
+                        {% set y = temp_date[0]|int %}
+                        {% set m = temp_date[1]|int %}
+                        {% set d = temp_date[2]|int %}
+                        {% set a = (14 - m) // 12 %}
+                        {% set y = y - a %}
+                        {% set m = m + 12 * a - 2 %}
+                        {% set weekday.value = (d + y + y//4 - y//100 + y//400 + (31*m)//12) % 7 %}
+                        
+                        {# Add empty cells for days before the first of the month #}
+                        {% for _ in range(weekday.value) %}
+                            <div class="day empty"></div>
+                        {% endfor %}
+                        
+                        {# Add all days of the month #}
+                        {% for menu in monthly_menu %}
+                            {% set date_str = menu.date %}
+                            {% set has_selections = date_str in meal_selections %}
+                            {% set unique_students = [] %}
+                            {% if has_selections %}
+                                {% if meal_selections[date_str]['breakfast']['count'] == '1' %}
+                                    {% for student in meal_selections[date_str]['breakfast']['students'] %}
+                                        {% if student.regno not in unique_students %}
+                                            {% set _ = unique_students.append(student.regno) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                                {% if meal_selections[date_str]['lunch']['count'] == '1' %}
+                                    {% for student in meal_selections[date_str]['lunch']['students'] %}
+                                        {% if student.regno not in unique_students %}
+                                            {% set _ = unique_students.append(student.regno) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                                {% if meal_selections[date_str]['dinner']['count'] == '1' %}
+                                    {% for student in meal_selections[date_str]['dinner']['students'] %}
+                                        {% if student.regno not in unique_students %}
+                                            {% set _ = unique_students.append(student.regno) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% endif %}
+                            <div class="day {% if has_selections %}has-selections{% endif %}" 
+                                 onclick="showSelections('{{ date_str }}')">
+                                <span class="day-number">{{ date_str.split('-')[2] }}</span>
+                                {% if has_selections %}
+                                    <div class="selection-counts">
+                                        <div class="total-count">Total: {{ unique_students|length }}</div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        
+                        {# Calculate remaining days in the last week #}
+                        {% set last_date = monthly_menu[-1].date %}
+                        {% set temp_date = last_date.split('-') %}
+                        {% set y = temp_date[0]|int %}
+                        {% set m = temp_date[1]|int %}
+                        {% set d = temp_date[2]|int %}
+                        {% set a = (14 - m) // 12 %}
+                        {% set y = y - a %}
+                        {% set m = m + 12 * a - 2 %}
+                        {% set last_weekday = (d + y + y//4 - y//100 + y//400 + (31*m)//12) % 7 %}
+                        
+                        {# Add empty cells for remaining days in the last week #}
+                        {% for _ in range(6 - last_weekday) %}
+                            <div class="day empty"></div>
+                        {% endfor %}
+                    </div>
+                    </div>
+                </div>
+
+            <!-- Selections Modal -->
+            <div id="selectionsModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Meal Selections for <span id="modalDate"></span></h2>
+                    <div class="selections-list">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize data from server-side
+        let mealSelectionsData = {};
+        let serverFlashMessages = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize data from Jinja template
+            try {
+                mealSelectionsData = JSON.parse('{{ meal_selections | tojson | safe }}');
+                serverFlashMessages = JSON.parse('{{ get_flashed_messages(with_categories=true) | tojson | safe }}');
+            } catch (e) {
+                console.error('Error initializing data:', e);
+            }
+
+            // Check for flash messages
+            if (serverFlashMessages && serverFlashMessages.length > 0) {
+                serverFlashMessages.forEach(([category, message]) => {
+                    if (category === 'success') {
+                        showSuccessMessage();
+                    }
+                });
+            }
+
+            // Theme toggle functionality
+            initializeThemeToggle();
+
+            // Modal close handlers
+            initializeModalHandlers();
+        });
+
+        // Function to show selections for a specific date
+        function showSelections(dateStr) {
+            const modal = document.getElementById('selectionsModal');
+            const modalDate = document.getElementById('modalDate');
+            const selectionsList = modal.querySelector('.selections-list');
+            
+            try {
+                // Format the date for display
+                const [year, month, day] = dateStr.split('-');
+                const displayDate = new Date(year, month - 1, day).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                modalDate.textContent = displayDate;
+                
+                // Get the meal selections for this date
+                let dateSelections = {
+                    breakfast: { count: '0', students: [] },
+                    lunch: { count: '0', students: [] },
+                    dinner: { count: '0', students: [] }
+                };
+
+                // Check if we have data for this date
+                if (mealSelectionsData && mealSelectionsData[dateStr]) {
+                    dateSelections = mealSelectionsData[dateStr];
+                }
+                
+                // Calculate unique students
+                const uniqueStudents = new Set();
+                ['breakfast', 'lunch', 'dinner'].forEach(meal => {
+                    if (dateSelections[meal].count === '1') {
+                        dateSelections[meal].students.forEach(student => {
+                            if (student.regno) {
+                                uniqueStudents.add(student.regno);
+                            }
+                        });
+                    }
+                });
+                
+                // Create the content for the modal
+                let modalContent = `
+                    <div class="meal-totals">
+                        <h3>Meal Selections for ${displayDate}</h3>
+                        <div class="total-students">
+                            <h4>Total Student: ${uniqueStudents.size}</h4>
+                        </div>
+                        <div class="meal-breakdown">
+                            <div class="meal-section">
+                                <h4>Breakfast (${dateSelections.breakfast.count === '1' ? dateSelections.breakfast.students.length : '0'} students)</h4>
+                                <div class="student-list">
+                                    ${dateSelections.breakfast.count === '1' && dateSelections.breakfast.students.length > 0
+                                        ? dateSelections.breakfast.students.map(student => `
+                                            <div class="student-item">
+                                                <span class="student-name">${student.name || 'Unknown'}</span>
+                                                <span class="student-regno">Reg No: ${student.regno || 'N/A'}</span>
+                                            </div>
+                                        `).join('')
+                                        : '<div class="no-students">No students selected</div>'
+                                    }
+                                </div>
+                            </div>
+                            <div class="meal-section">
+                                <h4>Lunch (${dateSelections.lunch.count === '1' ? dateSelections.lunch.students.length : '0'} students)</h4>
+                                <div class="student-list">
+                                    ${dateSelections.lunch.count === '1' && dateSelections.lunch.students.length > 0
+                                        ? dateSelections.lunch.students.map(student => `
+                                            <div class="student-item">
+                                                <span class="student-name">${student.name || 'Unknown'}</span>
+                                                <span class="student-regno">Reg No: ${student.regno || 'N/A'}</span>
+                                            </div>
+                                        `).join('')
+                                        : '<div class="no-students">No students selected</div>'
+                                    }
+                                </div>
+                            </div>
+                            <div class="meal-section">
+                                <h4>Dinner (${dateSelections.dinner.count === '1' ? dateSelections.dinner.students.length : '0'} students)</h4>
+                                <div class="student-list">
+                                    ${dateSelections.dinner.count === '1' && dateSelections.dinner.students.length > 0
+                                        ? dateSelections.dinner.students.map(student => `
+                                            <div class="student-item">
+                                                <span class="student-name">${student.name || 'Unknown'}</span>
+                                                <span class="student-regno">Reg No: ${student.regno || 'N/A'}</span>
+                                            </div>
+                                        `).join('')
+                                        : '<div class="no-students">No students selected</div>'
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                selectionsList.innerHTML = modalContent;
+                modal.style.display = 'block';
+            } catch (error) {
+                console.error('Error showing selections:', error);
+                selectionsList.innerHTML = `
+                    <div class="error-message">
+                        <h3>Error Loading Data</h3>
+                        <p>Unable to load meal selections for this date. Please try again.</p>
+                    </div>
+                `;
+                modal.style.display = 'block';
+            }
+        }
+
+        // Function to show success message
+        function showSuccessMessage() {
+            const successMessage = document.getElementById('successMessage');
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+        }
+
+        // Function to initialize theme toggle
+        function initializeThemeToggle() {
+            const themeToggle = document.getElementById('themeToggle');
+            const html = document.documentElement;
+
+            // Check for saved theme preference
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                html.setAttribute('data-theme', currentTheme);
+                themeToggle.checked = currentTheme === 'dark';
+            }
+
+            // Theme switch handler
+            themeToggle.addEventListener('change', function(e) {
+                if (e.target.checked) {
+                    html.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    html.setAttribute('data-theme', 'light');
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+        }
+
+        // Function to initialize modal handlers
+        function initializeModalHandlers() {
+            // Modal close handlers
+            document.querySelector('.close').addEventListener('click', function() {
+                document.getElementById('selectionsModal').style.display = 'none';
+            });
+
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('selectionsModal');
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
